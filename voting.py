@@ -11,9 +11,15 @@ def record_vote(name: str, vote: str) -> None:
         name: Voter name
         vote: Candidate chosen (John or Jane)
     """
+    # Check if the file exists to prevent rewriting the header
+    write_header = not os.path.exists('vote_results.csv')
+
     with open('vote_results.csv', 'a', newline='') as file:
         writer = csv.writer(file)
-        writer.writerow([name, vote]) # Writing name and vote into CSV file.
+        if write_header:
+            writer.writerow(['Voter Name', 'Candidate'])
+
+        writer.writerow([name, vote])
 
 # Function to calculate and summarize the votes, then exit the application.
 def finish_vote() -> None:
@@ -23,10 +29,13 @@ def finish_vote() -> None:
     with open('vote_results.csv', 'r') as file:
         reader = csv.reader(file)
         votes = list(reader)
+
+        # Exclude header row from count
+        total_votes = len(votes) -1 if votes else 0
+
         # Count votes for John and Jane as well as total votes
         person1_votes = sum(1 for row in votes if row[1] == 'John')
         person2_votes = sum(1 for row in votes if row[1] == 'Jane')
-        total_votes = len(votes)
 
         # Writing the summary to a new CSV file.
         with open('vote_summary.csv', 'w', newline='') as summary_file:
